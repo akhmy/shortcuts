@@ -26,12 +26,12 @@ if [[ $EUID -eq 0 ]]
 then
     warn "Running as root is not recommended. Please run this script as a regular user (with sudo)."
     warn "Do you want to continue? (y/n)"
-    read -r answer
+    read -r answer </dev/tty
     
     while [[ ! "$answer" =~ ^[yY]$ && ! "$answer" =~ ^[nN]$ ]]
     do
         warn "Please enter 'y' or 'n'"
-        read -r answer
+        read -r answer </dev/tty
     done
     
     [[ "$answer" =~ ^[nN]$ ]] && exit 0
