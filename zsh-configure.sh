@@ -9,32 +9,36 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 attempt() {
-    echo -e "${BLUE}[>]${NC} $1"
+    echo -e "${BLUE}$1${NC}"
 }
 success() {
-    echo -e "${GREEN}[✓]${NC} $1"
+    echo -e "${GREEN}$1${NC}"
 }
 warn() {
-    echo -e "${YELLOW}[!]${NC} $1"
+    echo -e "${YELLOW}$1${NC}"
 }
 error() {
-    echo -e "${RED}[✗]${NC} $1"
+    echo -e "${RED}$1${NC}" >&2
     exit 1
 }
 
-if [[ $EUID -eq 0 ]]
+ROOT_FLAG=false
+
+while getopts "r" opt; do
+    case $opt in
+        r)
+            ROOT_FLAG=true
+            ;;
+        *)
+            error "Unknown flag: -$opt"
+            ;;
+    esac
+done
+
+if [[ $EUID -eq 0 && $ROOT_FLAG == false ]]
 then
-    warn "Running as root is not recommended. Please run this script as a regular user (with sudo)."
-    warn "Do you want to continue? (y/n)"
-    read -r answer </dev/tty
-    
-    while [[ ! "$answer" =~ ^[yY]$ && ! "$answer" =~ ^[nN]$ ]]
-    do
-        warn "Please enter 'y' or 'n'"
-        read -r answer </dev/tty
-    done
-    
-    [[ "$answer" =~ ^[nN]$ ]] && exit 0
+    warn "Running as root is not recommended. To configure Zsh for a root user, run this script with '-r' flag."
+    exit 1
 fi
 
 ZSHRC="$HOME/.zshrc"
